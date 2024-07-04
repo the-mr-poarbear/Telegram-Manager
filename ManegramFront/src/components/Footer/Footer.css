@@ -1,0 +1,30 @@
+.footerHome{
+    background-image: url('../../assets/media/sky1.jpg');
+    position: relative;
+    z-index: 1;
+    color: white;
+   
+}
+
+.footerHome a{
+    color: white;  
+    text-decoration: none;
+}
+
+.footerHome ul{
+    list-style-type: none;
+    padding: 0;
+}
+
+.footerHome li {
+    padding-top: 30px;
+}
+
+.CallBar{
+    background-color:#F1F1F4 ;
+    color: black;
+}
+
+.iconFooter{
+    font-size: 80px;
+}

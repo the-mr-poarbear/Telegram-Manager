@@ -1,0 +1,11 @@
+.collappsedPP{
+    border-radius: 50%;
+    border: 2px black solid;
+    width: 10%;
+    min-width: 60px;
+}
+
+.collappsedProf{
+    position: absolute;
+    top : 170px
+}

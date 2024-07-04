@@ -1,0 +1,17 @@
+.bodyYCU{
+    background-color: #F1F1F4;
+    border-radius: 10px;
+    min-width: 300px;
+    margin: 10px; 
+    margin-bottom: 200px; 
+    z-index: 0;
+}
+
+.imgYcu{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(3px);
+
+}
+

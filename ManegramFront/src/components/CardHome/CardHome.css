@@ -1,0 +1,47 @@
+@font-face {
+    font-family: 'black';
+    src: url('../../assets/fonts/Inter-Black.ttf') ;
+       
+}
+
+@font-face {
+    font-family: 'medium';
+    src: url('../../assets/fonts/Inter-Medium.ttf') ;
+       
+}
+
+#root{
+    padding: 0;
+}
+
+.body{
+    
+    background: rgb(76,69,203);
+    background: linear-gradient(0deg, rgb(2, 18, 41) 7%, rgb(9, 9, 61) 100%); 
+    border-radius: 10px;
+    min-width: 300px;
+    padding: 50px 0px; 
+    margin: 10px;  
+    aspect-ratio: 7/8;
+}
+
+.body:hover{
+   
+    box-shadow:0px 0px 5px 2px rgba(134, 131, 228, 0.432), 
+  0px 0px 10px 2px rgba(27, 27, 218, 0.648),   
+  0px 0px 15px 2px rgb(10, 89, 235);  
+  transition: 0.5s;
+}
+
+.body h2{
+    font-family: 'black';
+}
+
+.body p{
+    font-family: 'medium';
+}
+
+.button{
+    background-color: #162A33;
+    font-family: 'medium';
+}

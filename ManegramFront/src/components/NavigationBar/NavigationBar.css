@@ -1,0 +1,17 @@
+.navBody{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    background-color: rgba(0,0,0,60%);
+}
+
+.loginbtn{
+    background-color:#053f96 ;
+}
+
+.lockBtn{
+   width: 15%;
+   max-width: 60px;
+}
+ 

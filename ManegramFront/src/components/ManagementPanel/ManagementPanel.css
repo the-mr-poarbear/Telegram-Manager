@@ -1,0 +1,27 @@
+.shell{
+    background-color: #081D3C;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.long{
+    height: 50vw;
+}
+
+.wholeThing{
+    margin-top: 250px;
+    width: 90%;
+}
+
+li{
+    list-style-type:none;
+}
+
+.panelOP:hover{
+    background-color:#11428C ;
+}
+
+
+.long h5{
+    font-size:18px;
+}

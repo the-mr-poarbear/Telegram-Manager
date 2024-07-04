@@ -1,0 +1,78 @@
+
+body{
+  background-color: #F1F1F4;
+}
+
+#root{
+  width: 100%;
+
+
+}
+
+body{
+  width: 100%;
+  background: rgb(0,0,0);
+  background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(5,21,44,1) 52%, rgba(3,6,25,1) 100%); 
+}
+
+.intro{
+  margin-top: 200px;
+}
+
+.imgHome{
+  width: 100%;
+  border-radius: 10px;
+  box-shadow:0px 0px 5px 2px rgba(134, 131, 228, 0.432), 
+  0px 0px 10px 2px rgba(27, 27, 218, 0.648),   
+  0px 0px 15px 2px rgb(10, 89, 235);  
+ 
+ 
+}
+
+.temp{
+
+  padding-top: 50px;
+  background-color: #F1F1F4;
+
+}
+
+.wave{
+  background-color: #F1F1F4;
+  object-fit: cover;
+  width: 100%;  
+  height: 100%;
+ 
+}
+
+
+.YCU{
+ 
+  bottom: 400px;
+  font-family: 'black';
+  font-size: 96px;
+
+}
+
+
+
+.YCUDiv{
+
+  flex-grow: 0;
+  flex-shrink: 0;
+  height: 300px;
+ 
+}
+
+.buttonHome{
+  background-color: rgba(0, 0, 0, 0%);
+  border: solid 2px #0094FF;
+  color: #0094FF;
+}
+
+.back{
+  margin-top: 150px;
+  background-image: url('../../assets/media/back2.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 100px 0;
+}
