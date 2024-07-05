@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import './Home.css'
 import Footer from '../Footer/Footer.jsx'
 import lock from '../../assets/media/lock.png'
@@ -9,11 +9,12 @@ import NavigationBar from '../NavigationBar/NavigationBar.jsx'
 import teleg from '../../assets/media/teleg.png'
 
 
-function Home() {
 
+function Home() {
   return (
     <div className='home'>
     <NavigationBar/>
+    
     <div className='row d-flex justify-content-around text-white intro'>
       <div className='col-md-5 order-md-1 order-2 col-8 text-start text-md-start text-center' style={{fontSize:"25px"}}>
         <h1 className='mb-3'><span style={{color:"#0094FF"}} >M</span>anegram</h1>

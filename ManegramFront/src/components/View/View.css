@@ -1,0 +1,101 @@
+.viewBody{
+    background-color: #081D3C;
+    border-radius: 10px;
+    min-height: 400px;
+}
+
+.viewRow{
+    background-color:#030619 ;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.containerRows{
+    width: 95%;
+}
+
+.viewRow button{
+    background-color: #396C84;
+}
+
+
+body.active-modal {
+    overflow-y: hidden;
+}
+
+.btn-modal {
+    padding: 10px 20px;
+    display: block;
+    margin: 100px auto 0;
+    font-size: 18px;
+}
+
+.modall, .overlay {
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+}
+
+.overlay {
+    background: rgba(49,49,49,0.8);
+}
+.modal-content {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1.4;
+    background: #f1f1f1;
+    padding: 14px 28px;
+    border-radius: 3px;
+    max-width: 600px;
+    min-width: 300px;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 7px;
+}
+
+.widthAdjust{
+    width: 75%;
+}
+
+
+@media (max-width: 768px) {
+    .ViewButton{
+        width: 100%;
+    }
+
+    .fontSizeView{
+        font-size: 13px;
+    }
+  }
+
+
+  @media (max-width: 480px) {
+    .widthAdjust{
+         width: 100%;
+    }
+
+    .viewBody{
+        border-radius: 0px;
+    }
+    
+  }
+
+  .messageContent{
+    background-color: rgba(49,49,49,0);
+  }
+  
+  .messageButton{
+   
+    aspect-ratio: 1/1;
+    background-color: rgba(49,49,49,0);
+  }

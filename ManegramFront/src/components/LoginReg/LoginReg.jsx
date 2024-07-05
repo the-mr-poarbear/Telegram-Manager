@@ -21,7 +21,9 @@ function LoginReg({CheckUser,inputs,title , other , func, errCode , mode='login'
             return <div  className="text-white row w-75 my-3 fs-3">
                <label className='col-3' for={input}>{input}</label>
                <div className='col-2'></div>
-               <input className='inputArea col-7' ref={refArr[index]} onChange={(e , index)=>CheckUser(e.target.value , index ,mode)} id={input} ></input>
+              
+               
+               {(index ==0 && mode!= 'login') ? <input className='inputArea col-7' ref={refArr[index]} onChange={(e)=>CheckUser(e.target.value , index ,mode)} id={input}></input> : <input className='inputArea col-7' ref={refArr[index]}  id={input} ></input>}
         </div> 
         })}
 

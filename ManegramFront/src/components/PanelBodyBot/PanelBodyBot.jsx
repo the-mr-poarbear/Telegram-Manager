@@ -1,45 +1,43 @@
 import { Link } from 'react-router-dom';
-import './PanelBody.css'
+import './PanelBodyBot.css'
 import XYChart from '../Charts/XYChart';
 import { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { PropertyContext, Token } from '../../RoutesManeg';
-import { selectedProperty } from '../ManagementPanel/ManagementPanel';
+import { selectedBotProp } from '../ManagementPanel/ManagementPanel';
 
 
 
 
-function PanelBody(){
-    const [obj , setObj] = useState({})
+
+function PanelBodyBot(){
+    const [obj , setObj] = useState({bot:{last_active:'N/A'}})
     const {token} = useContext(Token)
-    const {selected} = useContext(selectedProperty)
+    const {selectedBot , setSelectedBot } = useContext(selectedBotProp)
     const newMessage = useRef('')
-    console.log('byeeee' , selected)
-    const inpTitle = ['Connected Bots' ,'Total Admins' ,'Created Since' ]
-    const createDate = String(selected.create_date)
+    console.log('byeeee' , selectedBot)
+    console.log('hiiiiiiiiiiiiii' , obj)
+    const inpTitle = ['Connected Containers' ,'Total Admins' ,'Created Since' , 'Last Active' ]
+    const createDate = String(selectedBot.create_date)
     const createDateSlash = createDate.slice(2,4) + '/' + createDate.slice(5,7) + '/' + createDate.slice(8,10)
-    const inp = [ obj.connected_bots_count, obj.connected_admins_count ,createDateSlash]
+    const inp = [ obj.connected_containers_count, obj.connected_admins_count ,createDateSlash , obj.bot.last_active]
 
-    function AddMessage(){
-        console.log('opened')
-        console.log(token)
-        axios.post('http://127.0.0.1:8000/add-message',{content:newMessage.current.value, container_id:selected.container_id } , {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response) =>{console.log(response)}) 
-
-    }
+    
 
     useEffect(()=>{
-        axios.get('http://127.0.0.1:8000/admin-management-container/'+ selected.container_id ,{headers: {'Authorization': `bearer ${token}`} } ).then((response)=>{
+        console.log('vrhnilrhi')
+        axios.get('http://127.0.0.1:8000/admin-management-bot/'+ selectedBot.bot_id ,{headers: {'Authorization': `bearer ${token}`} } ).then((response)=>{
             setObj(response.data)
-            console.log(response.data)
+            console.log(response.data , 'resss')
         })
-    },[selected])
+    },[selectedBot])
     
 
     return <div className='row mt-5 mx-3'>
         <div className='col-lg-7 col-12'>
             <div className='core a p-3'>
-                <h5 className='btnBlue' >container info</h5>
-                <p>{selected.info}</p>
+                <h5 className='btnBlue' >Bot info</h5>
+                <p>{selectedBot.info}</p>
             </div>
 
             <div className='core mt-3 d'>
@@ -53,12 +51,12 @@ function PanelBody(){
             <div className='d-flex flex-column justify-content-between core b p-3 text-center totalMessageSec'>
                 <p className='mb-0 btnBlue' >Total Messages</p>
                 <h1>{obj.message_count}</h1>
-                <Link to={`/managementPanel/cont-message/${selected.container_id}`} ><button className='py-1 px-3'>See Messages</button></Link>
+                <Link to={`/managementPanel/cont-message/${selectedBot.bot_id}`} ><button className='py-1 px-3'>See Messages</button></Link>
             </div>
 
             <div className='core e mt-3 d-flex flex-column align-items-center'>
                 <textarea className='mt-2 p-2 px-2 textInput' ref={newMessage} type='text' id="w3review" name="w3review" rows="4" cols="5" placeholder='Type Here'></textarea>
-                <button onClick={()=>{AddMessage()}} className='py-1 mt-2 px-3  AddMessageButton'>Add Message</button>
+                <button onClick={()=>{}} className='py-1 mt-2 px-3  AddMessageButton'>Add Message</button>
             </div>
         </div>
         <div className='col-2'>
@@ -78,4 +76,4 @@ function PanelBody(){
     </div>
 }
 
-export default PanelBody;
+export default PanelBodyBot;
