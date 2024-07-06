@@ -46,10 +46,10 @@ const NavigationBar = () => {
           <a className=" fs-6 mx-3 nav-link text-white" href="./games.html">Add Message Container</a>
         </li>
         <li className="nav-item">
-          <a className=" fs-6 mx-3 nav-link text-white" href="./news.html" >Add Bot</a>
+          <Link to='/addBot'  state= {{ blanks:[{type:'text' , title:'Name'},{type:'text' , title:'Username'},{type:'dropDown' , title:'Message Containers'},{type:'dropDown' , title:'Comment Containers'},{type:'addableText' , title:'Add Admin'},{type:'textArea' , title:'Info'}]}} className=" fs-6 mx-3 nav-link text-white" > Add Bot</Link>
         </li>
         <li className="nav-item">
-          <a className=" fs-6 mx-3  nav-link navItem text-white" href="./about.html" >Admin Page</a>
+          <Link to='/managementPanel' className=" fs-6 mx-3  nav-link navItem text-white"  >Admin Page</Link>
         </li>
         <li className='nav-item'>
           <Link to='/login'><button className='loginbtn'>Login / signup</button></Link>

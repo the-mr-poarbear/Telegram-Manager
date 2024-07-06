@@ -3,8 +3,8 @@ import './PanelBody.css'
 import XYChart from '../Charts/XYChart';
 import { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import { PropertyContext, Token } from '../../RoutesManeg';
-import { selectedProperty } from '../ManagementPanel/ManagementPanel';
+import { Token } from '../../RoutesManeg';
+import { selectedProperty } from '../../RoutesManeg';
 
 
 

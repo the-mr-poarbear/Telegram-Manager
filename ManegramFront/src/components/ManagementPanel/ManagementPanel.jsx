@@ -3,12 +3,10 @@ import NavigationBar from '../NavigationBar/NavigationBar';
 import { Navigate, useNavigate } from "react-router-dom";
 import'./ManagementPanel.css'
 import SidePanelProfile from '../SidePanelProfile/SidePanelProfile';
-import { PropertyContext } from '../../RoutesManeg';
+import { PropertyContext, selectedBotProp, selectedProperty } from '../../RoutesManeg';
 import { Outlet } from 'react-router-dom';
 
 
-export const selectedProperty = React.createContext();
-export const selectedBotProp = React.createContext();
 function ManagementPanel(){
     const {properties , setProperties} = useContext(PropertyContext)
 
@@ -17,33 +15,35 @@ function ManagementPanel(){
     const bots=properties.bots
     const manage = useNavigate()
 
-    const [selected , setSelected] = useState({title:'Container Name'})
-    const [selectedBot , setSelectedBot] = useState({title:'Bot Name'})
+    const {selected , setSelected} = useContext(selectedProperty)
     console.log('gi',properties.message_containers)
   
     const first = useRef(true)
-    const second = useRef(true)
+
     useEffect(()=>{
         console.log(first.current)
-        if (first.current){
+        if (first.current && selected == {title:'Container or Bot Name'}){
             first.current = false
         } else {
-            console.log(selected , 'goh')
-            manage('/managementPanel/panel')
+            console.log('entered')
+            first.current = true
+            if(selected['bot_id'] == null){
+                console.log(selected , 'goh')
+                manage('/managementPanel/panel')
+
+            }else if(selected['bot_id']){
+                console.log(selected , 'goh')
+                manage('/managementPanel/panelBot')
+            }else{
+                console.log('nope')
+            }
+
+            
         }
         
       },[selected])
 
-      useEffect(()=>{
-        console.log(second.current)
-        if (second.current){
-            second.current = false
-        } else {
-            console.log(selectedBot , 'goh')
-            manage('/managementPanel/panelBot')
-        }
-        
-      },[selectedBot])
+
 
     return <div className='d-flex flex-column align-items-center'>
         {console.log(selected)}
@@ -92,7 +92,7 @@ function ManagementPanel(){
                             <div id="demo2" className="collapse ">
                                 <ul>
                                     {bots.map((bot)=>{
-                                        return <li onClick={(event)=> {setSelectedBot(bot) ; console.log('clicked')}} className='my-1'>{bot.title}</li>
+                                        return <li onClick={(event)=> {setSelected(bot) ; console.log('clicked')}} className='my-1'>{bot.title}</li>
                                     })}
                                     
                                 </ul>
@@ -104,11 +104,11 @@ function ManagementPanel(){
             </div>
             <div className='col-lg-9 col-12 row'>
                 <div className='shell long'>
-                    <selectedBotProp.Provider value={{selectedBot , setSelectedBot}}>
+               
                         <selectedProperty.Provider value={{ selected,setSelected }}>
                             <Outlet/>
                         </selectedProperty.Provider>
-                    </selectedBotProp.Provider>
+                   
                     
                 </div>
                 

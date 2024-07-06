@@ -1,0 +1,13 @@
+.blueCol {
+    color: #0094FF;
+}
+
+.blueBack {
+    background-color: #030619;
+}
+
+.sendButton {
+    color: #0094FF;
+    border: 2px solid #0094FF;
+    background-color: rgba(0, 0, 0, 0);
+}

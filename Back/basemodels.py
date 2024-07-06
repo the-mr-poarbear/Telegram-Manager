@@ -46,12 +46,12 @@ class BotContainerModel(BotContainerBase):
 
 
 class BotHistoryBase(BaseModel):
-    bot_history_id: int
     bot_id: int 
     message_id: int
-    time_sent: datetime
 
 class BotHistoryModel(BotHistoryBase):
+    bot_history_id: int
+    time_sent: datetime
     class Config:
         from_attributes = True
 

@@ -3,17 +3,18 @@ import "./View.css";
 import { Link } from "react-router-dom";
 import useWindowDimensions from "../Hooks/useWindowDimensions";
 
-function View({ keys, title, users, btn, search = 1 }) {
+function View({ keys, title, users, btn }) {
   const [index, setIndex] = useState(5);
   let keysSlized = keys.slice(0, index);
 
   const { height, width } = useWindowDimensions();
   const [value, setValue] = useState("Spechailty");
 
-  return (
+  return (<div className="d-flex flex-column align-items-center w-100">
+   <h2 className="mb-5 text-white">{title}</h2>
     <div className="widthAdjust p-4 viewBody d-flex flex-column align-items-center">
       <div className="d-flex w-100 justify-content-between">
-        <h2 className="mb-5 text-white">{title}</h2>
+       
       </div>
 
       {width <= 600 && index == 5 ? setIndex(4) : null}
@@ -21,13 +22,13 @@ function View({ keys, title, users, btn, search = 1 }) {
 
       <div className="containerRows">
         {console.log(users)}
-        {users.map((user) => {
+        {users.map((user , index) => {
           return (
             <div className=" row  viewRow text-white mb-3">
               <div className="col-12 col-md-10 d-flex">
                 {keysSlized.map((key) => (
                   <div key={key} className="col fontSizeView">
-                    {key == "message_content" ? (
+                    {key == "message_content" || key == "content" ? (
                       <p></p>
                     ) : (
                       <div>
@@ -42,17 +43,17 @@ function View({ keys, title, users, btn, search = 1 }) {
                     className=" messageButton"
                     type="button"
                     data-bs-toggle="collapse"
-                    data-bs-target={`#${user.message_id}`}
+                    data-bs-target={`#${index}`}
                     aria-expanded="false"
-                    aria-controls={`#${user.message_id}`}
+                    aria-controls={`#${index}`}
                   >
                     <i class="bi bi-caret-up"></i>
                   </button>
                 </div>
               </div>
-              <div className="collapse col-12" id={user.message_id}>
+              <div className="collapse col-12" id={index}>
                 <div className="card card-body messageContent">
-                  {user.message_content}
+                  {user[keysSlized[keysSlized.length-1]]}
                 </div>
               </div>
             </div>
@@ -60,6 +61,8 @@ function View({ keys, title, users, btn, search = 1 }) {
         })}
       </div>
     </div>
+  </div>
+    
   );
 }
 

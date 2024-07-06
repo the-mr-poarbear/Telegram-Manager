@@ -1,0 +1,35 @@
+.blackDiv {
+    min-width: 300px;
+    background-color: #030E1D;
+}
+
+.addBotTextAra {
+    background-color: #081D3C;
+    resize: none;
+}
+
+.inputColor {
+    background-color: #081D3C;
+    border: 1px solid #484C52;
+}
+
+.inputColor:focus {
+    background-color: #081D3C;
+    border: 1px solid #0094FF;
+}
+
+.blackBackCol {
+    background-color: #030E1D;
+}
+
+.addButton {
+    background-color: #030E1D;
+    border: solid #0094FF 2px;
+    color: #0094FF;
+
+}
+
+.addBot {
+    background-color: #081D3C;
+    max-width: 1000px
+}
