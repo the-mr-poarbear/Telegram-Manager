@@ -5,12 +5,11 @@ const SearchableDropdown = ({
   label,
   id,
   selectedVal,
-  handleChange
+  handleChange,
 }) => {
+  const inputRef = useRef('')
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-
-  const inputRef = useRef(null);
 
   useEffect(() => {
     document.addEventListener("click", toggle);

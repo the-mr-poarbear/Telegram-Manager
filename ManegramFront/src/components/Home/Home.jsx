@@ -9,22 +9,25 @@ import NavigationBar from '../NavigationBar/NavigationBar.jsx'
 import teleg from '../../assets/media/teleg.png'
 import axios from 'axios'
 import { PropertyContext } from '../../RoutesManeg.jsx'
+import { useNavigate } from 'react-router-dom'
 
 
 
 
 function Home() {
+  const manage = useNavigate()
   const {properties , setProperties} = useContext(PropertyContext)
   useEffect(()=>{
     axios.get('http://127.0.0.1:8000/validateToken', {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response) =>{
           
       if(response.data){
-          console.log(response.data.access_token)
-          localStorage.setItem('accsess_token',response.data.access_token)
+          console.log(response.data)
+          
           axios.get('http://127.0.0.1:8000/admin-management-panel',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
               console.log(response.data)
               setProperties(response.data)
               console.log(properties , 'khi')
+              manage('/managementPanel')
           })
           
       }})

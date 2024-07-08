@@ -5,11 +5,11 @@ export function DropDownSearchForAdd({
   FetchContainers,
   messageContainers,
   container2bAdded,
-  blank,
+  title,
   setContainer2bAdded,
   selectedMesConts,
   setSelectedMesConts,
-
+  reff
 }) {
 
   const {refresh , setRefresh} = useContext(selectedThing)
@@ -18,13 +18,13 @@ export function DropDownSearchForAdd({
 
 
   function AddMesssageContainer(){
-        
+    console.log(container2bAdded,'cc')
     if (container2bAdded){
         console.log(count)
         let temp = selectedMesConts
         temp.push(container2bAdded)
         setSelectedMesConts(temp)
-        
+        console.log(temp , 'temp')
     }  
 
     }
@@ -40,11 +40,11 @@ export function DropDownSearchForAdd({
             <div className="col-2">&nbsp;</div>
                 <div className="col-8 d-flex justify-content-center row">
                     <div className="col-2 d-none ">&nbsp;</div>
-                        <label for="title" className="text-white mt-md-3 p-0 col-3 d-none d-md-block">{blank.title}</label>
+                        <label for="title" className="text-white mt-md-3 p-0 col-3 d-none d-md-block">{title}</label>
                             <div className="p-3 py-4 pe-5 col-9 blackDiv">
                                 <div className="d-flex  justify-content-between w-100">
                                     <div onFocus={FetchContainers} className="dropdown col-lg-6">
-                                        <SearchableDropdown options={messageContainers} label="title" id="container_id" selectedVal={container2bAdded} handleChange={val => setContainer2bAdded(val)} />
+                                        <SearchableDropdown inputRef={reff} options={messageContainers} label="title" id="container_id" selectedVal={container2bAdded} handleChange={val => setContainer2bAdded(val)} />
                                     </div>
                                     <button onClick={()=>{AddMesssageContainer(); count.current++;setRefresh(count.current); }} className="btn  px-md-5 addButton" type="submit">Add</button>
                                 </div>
