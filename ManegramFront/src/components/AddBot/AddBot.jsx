@@ -1,29 +1,43 @@
+import { DropDownSearchForAdd } from '../DropDownSearchForAdd/DropDownSearchForAdd.jsx';
 import { useLocation } from 'react-router-dom';
 import Footer from '../Footer/Footer'
 import NavigationBar from '../NavigationBar/NavigationBar'
 import './AddBot.css'
-import { useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { selectedProperty, Token } from '../../RoutesManeg';
 import SearchableDropdown from '../SearchableDropDown/SeachableDropdown';
 import axios from 'axios';
 
+export const selectedThing = createContext()
+
 function AddBot(){
     const location = useLocation();
     // get userId
+    const[refresh , setRefresh] = useState('')
+    const[botObj , setBotObj] = useState({})
     let blanks = location.state.blanks;
-    const [messageContainers , setMessageContainers] = useState([])
-    const [container2bAdded , setContainer2bAdded] = useState([])
-    const {selected , setSelected } = useContext(selectedProperty)
+    const [Containers , setContainers] = useState({'message_containers':[] , 'comment_containers':[]})
+    const [containerM2bAdded , setContainerM2bAdded] = useState({})
+    const [containerC2bAdded , setContainerC2bAdded] = useState({})
+    const [selectedMesConts , setSelectedMesConts]= useState([])
+    const [selectedComConts , setSelectedComConts]= useState([])
+    const setSelectedConts = {'message_containers':[selectedMesConts , setSelectedMesConts] , 'comment_containers':[selectedComConts , setSelectedComConts]}
+    
+
+    const setContainer2bAdded = {'message_containers':[containerM2bAdded , setContainerM2bAdded] , 'comment_containers':[containerC2bAdded , setContainerC2bAdded]}
+    
     const {token} = useContext(Token)
     function FetchContainers(){
-        axios.get('http://127.0.0.1:8000/all-containers',{headers: {'Authorization': `bearer ${token}`} } ).then((response)=>{
-            setMessageContainers(response.data.message_containers)
-            console.log(response.data)
+        axios.get('http://127.0.0.1:8000/all-containers',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
+            setContainers(response.data)
+            console.log(response.data , 'resresres')
         })
     }
+
+   
     return (
     <div className='w-100 d-flex flex-column align-items-center'>
-        {console.log( 'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')}
+       
         
         <NavigationBar/>
         <div className='w-100 d-flex flex-column align-items-center ' style={{margin:'200px 0'}}>
@@ -49,28 +63,28 @@ function AddBot(){
                             </div>
                         }
                         else if(blank.type=='dropDown'){
-                            return  <div className="d-flex justify-content-between row row-cols-6 ">
-                                    <div className="col-2">&nbsp;</div>
-                                    <div className="col-8 d-flex justify-content-center row">
-                                        <div className="col-2 d-none ">&nbsp;</div>
-                                        <label for="title" className="text-white mt-md-3 p-0 col-3 d-none d-md-block">{blank.title}</label>
-                                        <div className="p-3 py-4 pe-5 d-flex  justify-content-between col-9 blackDiv">
-                                            <div onFocus={FetchContainers} className="dropdown col-lg-6">
-                                                <SearchableDropdown
-                                                    options={messageContainers}
-                                                    label="title"
-                                                    id="container_id"
-                                                    selectedVal={container2bAdded}
-                                                    handleChange={(val) => setContainer2bAdded(val)}
-                                                />
-                                            </div>
-                                            <button className="btn  px-md-5 addButton" type="submit">Add</button>
-                                        </div>
-                    
-                    
-                                    </div>
-                                    <div className="col-2">&nbsp;</div>
-                                </div>
+                           
+                            return <>
+                                    <selectedThing.Provider value={{refresh , setRefresh}}>
+                                    <DropDownSearchForAdd   
+                                        FetchContainers={FetchContainers} 
+                                        messageContainers={Containers[blank.contType]} 
+                                        container2bAdded={setContainer2bAdded[blank.contType][0]} 
+                                        blank={blank}
+                                        setContainer2bAdded={setContainer2bAdded[blank.contType][1]}  
+                                        selectedMesConts={setSelectedConts[blank.contType][0]}
+                                        setSelectedMesConts={setSelectedConts[blank.contType][1]}
+
+                                    />
+
+                                    </selectedThing.Provider>
+                                   
+                                    
+                                     
+                            
+                            </> 
+
+
                         }else if(blank.type=='addableText'){
                             return <div className="d-flex justify-content-between row row-cols-6 ">
                                 <div className="col-2">&nbsp;</div>
@@ -107,6 +121,8 @@ function AddBot(){
                             </div>
                         }     
                 })}
+
+            
             
             </div>      
         </div>  

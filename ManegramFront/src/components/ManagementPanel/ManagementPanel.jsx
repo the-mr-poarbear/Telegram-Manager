@@ -5,12 +5,13 @@ import'./ManagementPanel.css'
 import SidePanelProfile from '../SidePanelProfile/SidePanelProfile';
 import { PropertyContext, selectedBotProp, selectedProperty } from '../../RoutesManeg';
 import { Outlet } from 'react-router-dom';
+import axios from 'axios';
 
 
 function ManagementPanel(){
     const {properties , setProperties} = useContext(PropertyContext)
 
-    const messageConts=properties.message_containers
+    let messageConts=properties.message_containers
     const commentConts=properties.comment_containers
     const bots=properties.bots
     const manage = useNavigate()
@@ -43,10 +44,16 @@ function ManagementPanel(){
         
       },[selected])
 
-
+      useEffect(()=>{
+        axios.get('http://127.0.0.1:8000/admin-management-panel',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
+            console.log(response.data)
+            setProperties(response.data)
+            console.log(properties , 'khiiiiiiiiiiiiiiiii')
+        })
+      },[])
 
     return <div className='d-flex flex-column align-items-center'>
-        {console.log(selected)}
+        {console.log(selected , properties , messageConts , 'see it')}
         <NavigationBar/>
        
         
@@ -56,7 +63,7 @@ function ManagementPanel(){
                 <div className='col-lg-9 col-12 p-0 mb-3'><div className='shell '  ><h2 className='p-2 ps-5 fs-1 btnBlue'>{selected.title}</h2></div></div>
             </div>
             
-            <SidePanelProfile keys={messageConts}/>
+            <SidePanelProfile keys={messageConts} keys2={commentConts} keys3={bots}/>
             <div className='col-3 d-none d-lg-block' style={{overflow:'hidden'}}>
                 <div className='shell long' style={{overflow:'hidden'}}>
                     
@@ -65,7 +72,7 @@ function ManagementPanel(){
                             <button type="button" className="btn text-white mt-5" data-bs-toggle="collapse" data-bs-target="#demo"><h5>Message Containers</h5></button>
                             <div id="demo" className="collapse ">
                                 <ul className=''>
-                                    {messageConts.map((messageCont)=>{
+                                    {messageConts?.map((messageCont)=>{
                                         return <li onClick={(event)=> {setSelected(messageCont)}} className='my-1 panelOP'>{messageCont.title}</li>
                                     })}
                                     
@@ -78,7 +85,7 @@ function ManagementPanel(){
                             <button type="button" className="btn text-white" data-bs-toggle="collapse" data-bs-target="#demo1"><h5>Comment Containers</h5></button>
                             <div id="demo1" className="collapse ">
                                 <ul>
-                                    {commentConts.map((commentCont)=>{
+                                    {commentConts?.map((commentCont)=>{
                                         return <li onClick={(event)=> setSelected(commentCont)} className='my-1'>{commentCont.title}</li>
                                     })}
                                     
@@ -91,7 +98,7 @@ function ManagementPanel(){
                         <button type="button" className="btn text-white" data-bs-toggle="collapse" data-bs-target="#demo2"><h5>Bots</h5></button>
                             <div id="demo2" className="collapse ">
                                 <ul>
-                                    {bots.map((bot)=>{
+                                    {bots?.map((bot)=>{
                                         return <li onClick={(event)=> {setSelected(bot) ; console.log('clicked')}} className='my-1'>{bot.title}</li>
                                     })}
                                     

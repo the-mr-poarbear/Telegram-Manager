@@ -16,14 +16,14 @@ function SendMessage(){
     const {token} = useContext(Token)
 
     function SetMessages(container_id){
-        axios.get('http://127.0.0.1:8000/container-messages/'+ container_id , {headers: {'Authorization': `bearer ${token}`} }).then((response) =>{
+        axios.get('http://127.0.0.1:8000/container-messages/'+ container_id , {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} }).then((response) =>{
             setSelectedContMessages(response.data)
             console.log(response)
         })
     }
 
     useEffect(()=>{
-        axios.get('http://127.0.0.1:8000/bot-containers/'+ selected.bot_id , {headers: {'Authorization': `bearer ${token}`} }).then((response) =>{
+        axios.get('http://127.0.0.1:8000/bot-containers/'+ selected.bot_id , {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} }).then((response) =>{
             setConts(response.data)
             console.log(response.data , 'conts')
         })

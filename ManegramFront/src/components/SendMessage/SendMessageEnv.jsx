@@ -10,7 +10,7 @@ const {token} = useContext(Token)
 const [success , setSuccess] = useState('')
 
 function SendMessage(message_id){
-    axios.post('http://127.0.0.1:8000/send-messsage',{bot_id : selected.bot_id  ,message_id : message_id } ,  {headers: {'Authorization': `bearer ${token}`} } ).then((response) =>
+    axios.post('http://127.0.0.1:8000/send-messsage',{bot_id : selected.bot_id  ,message_id : message_id } ,  {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response) =>
     {console.log(response); setSuccess(true)})  
 }
 

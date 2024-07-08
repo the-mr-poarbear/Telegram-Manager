@@ -22,7 +22,7 @@ function ViewBotMessages(){
 
     useEffect(()=>{
         console.log('ey baba2')
-        axios.get('http://127.0.0.1:8000/bot-messages/'+ bot_id , {headers: {'Authorization': `bearer ${token}`} }).then((response) =>{
+        axios.get('http://127.0.0.1:8000/bot-messages/'+ bot_id , {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} }).then((response) =>{
             setMessages(response.data)
             console.log(response)
         })

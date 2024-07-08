@@ -18,7 +18,7 @@ function PanelBodyBot(){
     const newMessage = useRef('')
     console.log('byeeee' , selected)
     console.log('hiiiiiiiiiiiiii' , obj)
-    const inpTitle = ['Connected Containers' ,'Total Admins' ,'Created Since' , 'Last Active' ]
+    const inpTitle = [['Connected Containers' , '40px'] ,['Total Admins' , '40px'] ,['Created Since' , '20px'] , ['Last Active' , '20px' ]]
     const createDate = String(selected.create_date)
     const createDateSlash = createDate.slice(2,4) + '/' + createDate.slice(5,7) + '/' + createDate.slice(8,10)
     const inp = [ obj.connected_containers_count, obj.connected_admins_count ,createDateSlash , obj.bot.last_active]
@@ -26,11 +26,20 @@ function PanelBodyBot(){
 
     useEffect(()=>{
         console.log('vrhnilrhi')
-        axios.get('http://127.0.0.1:8000/admin-management-bot/'+ selected.bot_id ,{headers: {'Authorization': `bearer ${token}`} } ).then((response)=>{
+        axios.get('http://127.0.0.1:8000/admin-management-bot/'+ selected.bot_id ,{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`}  } ).then((response)=>{
             setObj(response.data)
             console.log(response.data , 'resss')
         })
     },[selected])
+
+    useEffect(()=>{
+        if(selected){
+            axios.get('http://127.0.0.1:8000/admin-management-bot/'+ selected.container_id ,{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`}  } ).then((response)=>{
+                setObj(response.data)
+                console.log(response.data)
+            })
+        }
+    },[])
     
 
     return <div className='row mt-5 mx-3'>
@@ -47,7 +56,7 @@ function PanelBodyBot(){
                     <Link to='./'><button className='mx-5 mt-1 mb-3'>See More</button></Link>
             </div>
             </div>
-        <div className='col-3'>
+        <div className='col-lg-3 col-6 mt-lg-0 mt-4'>
             <div className='d-flex flex-column justify-content-between core b p-3 text-center totalMessageSec'>
                 <p className='mb-0 btnBlue' >Total Messages</p>
                 <h1>{obj.message_count}</h1>
@@ -58,12 +67,12 @@ function PanelBodyBot(){
                 <OptionButton title='Send Message' link='/managementPanel/sendMessage' />
             </div>
         </div>
-        <div className='col-2'>
+        <div className='col-lg-2 col-6 mt-4 mt-lg-0'>
             <div className='core c d-flex flex-column justify-content-evenly'>
                 {inp.map((info ,index)=>{
                     return <div className='text-center btnBlue'>
-                        <p>{inpTitle[index]}</p>
-                        <h3 style={{fontSize:'2vw'}}>{info}</h3>
+                        <p>{inpTitle[index][0]}</p>
+                        <h3 className='fs-md-5' style={{fontSize:inpTitle[index][1]}}>{info}</h3>
                     </div>
                 })}
             </div>

@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import './Home.css'
 import Footer from '../Footer/Footer.jsx'
 import lock from '../../assets/media/lock.png'
@@ -7,10 +7,29 @@ import CardHome from '../CardHome/CardHome.jsx'
 import CardYCU from '../CardYCU/CardYCU.jsx'
 import NavigationBar from '../NavigationBar/NavigationBar.jsx'
 import teleg from '../../assets/media/teleg.png'
+import axios from 'axios'
+import { PropertyContext } from '../../RoutesManeg.jsx'
+
 
 
 
 function Home() {
+  const {properties , setProperties} = useContext(PropertyContext)
+  useEffect(()=>{
+    axios.get('http://127.0.0.1:8000/validateToken', {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response) =>{
+          
+      if(response.data){
+          console.log(response.data.access_token)
+          localStorage.setItem('accsess_token',response.data.access_token)
+          axios.get('http://127.0.0.1:8000/admin-management-panel',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
+              console.log(response.data)
+              setProperties(response.data)
+              console.log(properties , 'khi')
+          })
+          
+      }})
+  },[])
+
   return (
     <div className='home'>
     <NavigationBar/>

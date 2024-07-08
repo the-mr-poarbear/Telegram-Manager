@@ -200,6 +200,29 @@ async def get_current_admin(token: Annotated[str, Depends(oauth2_scheme)], db:db
         raise credentials_exception
     return admin
 
+@app.get('/validateToken',response_model=bool)
+async def validate_token(token: Annotated[str, Depends(oauth2_scheme)], db:db_dependency):
+    print(2)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        
+        id: int = payload.get("id")
+        if id is None:
+           return False
+        token_data = basemodels.TokenData(id=id)
+        
+    except InvalidTokenError:
+        raise credentials_exception
+    
+    admin = await get_admin(db, token_data.id)
+    if admin is None:
+        return False
+    return True
 
 admin_dependency = Annotated[models.Admin, Depends(get_current_admin)]
 

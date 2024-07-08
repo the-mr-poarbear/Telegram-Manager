@@ -5,8 +5,8 @@ import lockCl from '../../assets/media/lock close.png'
 
 import './SidePanelProfile.css'
 
-function SidePanelProfile({keys}){
-    keys = [1 , 2, 3,  4, 5]
+function SidePanelProfile({keys , keys2 , keys3}){
+    
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -21,13 +21,23 @@ function SidePanelProfile({keys}){
         
         <Offcanvas  show={show} onHide={handleClose}>
         <Offcanvas.Header closeButton>
-        <Offcanvas.Title>hbhybjhbyh</Offcanvas.Title>
+        <Offcanvas.Title><h2>Items</h2></Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
         
-        
-            {keys.map((key) => (
-                <p key={key}>{key} : </p>
+            <h3 className="mb-2">Message Containers</h3>
+            {keys?.map((key) => (
+                <h4 key={key.title}>{key.title} </h4>
+            ))}
+
+            <h3 className="mt-5 mb-2">Comment Containers</h3>
+            {keys2?.map((key) => (
+                <h4 key={key.title}>{key.title}  </h4>
+            ))}
+
+            <h3 className="mt-5 mb-2">Bots</h3>
+            {keys3?.map((key) => (
+                <h4 key={key.title}>{key.title} </h4>
             ))}
         
         </Offcanvas.Body>
