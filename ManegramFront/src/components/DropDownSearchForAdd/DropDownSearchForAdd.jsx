@@ -1,29 +1,30 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import SearchableDropdown from "../SearchableDropDown/SeachableDropdown";
-import { selectedThing } from "../AddBot/AddBot";
 export function DropDownSearchForAdd({
-  FetchContainers,
-  messageContainers,
-  container2bAdded,
+  Fetch,
+  messageContainersOrBots,
+  bAdded,
   title,
-  setContainer2bAdded,
-  selectedMesConts,
-  setSelectedMesConts,
-  reff
+  setbAdded,
+  selectedEn,
+  setSelectedEn,
+  reff,
+  setRefresh,
+  refresh
 }) {
 
-  const {refresh , setRefresh} = useContext(selectedThing)
+//   const {refresh , setRefresh} = useContext(selectedThingCont)
 
   let count = useRef(0)
 
 
   function AddMesssageContainer(){
-    console.log(container2bAdded,'cc')
-    if (container2bAdded){
+    console.log(bAdded,'cc')
+    if (bAdded && !selectedEn.includes(bAdded)){
         console.log(count)
-        let temp = selectedMesConts
-        temp.push(container2bAdded)
-        setSelectedMesConts(temp)
+        let temp = selectedEn
+        temp.push(bAdded)
+        setSelectedEn(temp)
         console.log(temp , 'temp')
     }  
 
@@ -33,7 +34,10 @@ export function DropDownSearchForAdd({
         console.log('giiiii' , count)
     },[ count])
 
-  
+    function ToggleRefresh(){
+            setRefresh(!refresh)
+   
+    }
 
   return <div className="d-flex justify-content-between row row-cols-6 ">
            
@@ -43,14 +47,14 @@ export function DropDownSearchForAdd({
                         <label for="title" className="text-white mt-md-3 p-0 col-3 d-none d-md-block">{title}</label>
                             <div className="p-3 py-4 pe-5 col-9 blackDiv">
                                 <div className="d-flex  justify-content-between w-100">
-                                    <div onFocus={FetchContainers} className="dropdown col-lg-6">
-                                        <SearchableDropdown inputRef={reff} options={messageContainers} label="title" id="container_id" selectedVal={container2bAdded} handleChange={val => setContainer2bAdded(val)} />
+                                    <div onFocus={Fetch} className="dropdown col-lg-6">
+                                        <SearchableDropdown inputRef={reff} options={messageContainersOrBots} label="title" id="container_id" selectedVal={bAdded} handleChange={val => setbAdded(val)} />
                                     </div>
-                                    <button onClick={()=>{AddMesssageContainer(); count.current++;setRefresh(count.current); }} className="btn  px-md-5 addButton" type="submit">Add</button>
+                                    <button onClick={()=>{AddMesssageContainer();  ToggleRefresh(); }} className="btn  px-md-5 addButton" type="submit">Add</button>
                                 </div>
                                 
                                 <div className="d-flex flex-wrap mt-4">
-                                    {selectedMesConts.map((conts)=>{
+                                    {selectedEn.map((conts)=>{
                                            
                                             return  <div style={{backgroundColor:'#11428C'}} className='text-white w-25 py-2 m-1 text-center fs-6 rounded-3'>{String(conts)}</div>
                                     })}

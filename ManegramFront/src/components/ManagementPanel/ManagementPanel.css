@@ -26,3 +26,17 @@ li {
 .long h5 {
     font-size: 18px;
 }
+
+.blueBtn {
+    background-color: rgba(0, 0, 0, 0);
+    color: #0094FF;
+    border: 2px solid #0094FF;
+    padding: 6px 0;
+}
+
+.redBtn {
+    background-color: rgba(0, 0, 0, 0);
+    color: #e01212;
+    border: 2px solid #e41212;
+    padding: 6px 0;
+}

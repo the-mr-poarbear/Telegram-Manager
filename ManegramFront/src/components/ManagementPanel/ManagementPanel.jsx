@@ -60,7 +60,14 @@ function ManagementPanel(){
         <div className='row text-white wholeThing d-flex justify-content-center'>
             <div className='w-100 row d-flex justify-content-center'>
                 <div className='col-3 d-none d-lg-block' ><div className='shell p-0'><h2 className='p-2 mb-0 ps-3 btnBlue'>Items</h2></div></div>
-                <div className='col-lg-9 col-12 p-0 mb-3'><div className='shell '  ><h2 className='p-2 ps-5 fs-1 btnBlue'>{selected.title}</h2></div></div>
+                <div className='col-lg-9 col-12 p-0 mb-3'><div className='shell d-flex justify-content-between align-items-center'  >
+                    <h2 className='p-2 ps-5 fs-1 btnBlue'>{selected.title}</h2> 
+                    <div className='me-4'>
+                        <button className='mx-3 px-5  blueBtn'>Edit</button> 
+                        <button className='px-5 redBtn'>Delete</button>
+                    </div>
+                </div>
+            </div>
             </div>
             
             <SidePanelProfile keys={messageConts} keys2={commentConts} keys3={bots}/>

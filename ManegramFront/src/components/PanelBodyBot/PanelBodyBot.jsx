@@ -53,7 +53,7 @@ function PanelBodyBot(){
                     {console.log(obj , 'obj')}
                     <h5 className='btnBlue p-3'>messages in last seven days</h5>
                     <XYChart data={obj.last_7days_log}/>
-                    <Link to='./'><button className='mx-5 mt-1 mb-3'>See More</button></Link>
+                    <Link to='/managementPanel/BigGraphBot'><button className='mx-5 mt-1 mb-3 btnSeemore'>See More</button></Link>
             </div>
             </div>
         <div className='col-lg-3 col-6 mt-lg-0 mt-4'>

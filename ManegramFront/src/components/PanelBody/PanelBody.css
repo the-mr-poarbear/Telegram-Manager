@@ -67,3 +67,16 @@
 .btnBlue {
     color: #0094FF
 }
+
+.btnSeemore {
+    color: #0094FF;
+    background-color: rgba(0, 0, 0, 0);
+    border: #0094FF solid 1px;
+}
+
+.btnSeemore:hover {
+    color: white;
+    background-color: #0094FF;
+    border: #0094FF solid 1px;
+    transition: 0.4s;
+}

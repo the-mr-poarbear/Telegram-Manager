@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import useWindowDimensions from "../Hooks/useWindowDimensions";
 
 function View({ keys, title, users, btn }) {
+  
   const [index, setIndex] = useState(5);
   let keysSlized = keys.slice(0, index);
 

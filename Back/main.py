@@ -14,14 +14,15 @@ from sqlalchemy import and_,func
 import logging
 from sqlalchemy.exc import SQLAlchemyError
 
-from sqlalchemy.dialects import postgresql,sqlite
+# from sqlalchemy.dialects import postgresql,sqlite
 
 
 SECRET_KEY = "82aae4058e06a6746ebdd345bb19340223780baa5eb704bcc8890983c20c4739"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", scheme_name="admin")
+oauth2_scheme_super = OAuth2PasswordBearer(tokenUrl="login/superadmin", scheme_name="super_admin")
 
 app = FastAPI()
 
@@ -82,7 +83,20 @@ def validate_containerID(container_id: int, db:db_dependency):
     if not container_exist:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Container does not exist")
 
+def container_access_verification(admin_id: int, container_id: int, db: db_dependency):
 
+    access = db.query(models.ContainerAdmin).filter(and_(models.ContainerAdmin.admin_id == admin_id, models.ContainerAdmin.container_id == container_id)).first()
+
+    if not access:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin does not have acces to this container")
+
+def bot_access_verification(admin_id: int, bot_id: int, db: db_dependency):
+
+    access = db.query(models.BotAdmin).filter(and_(models.BotAdmin.admin_id == admin_id, models.BotAdmin.bot_id == bot_id)).first()
+
+    if not access:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin does not have acces to this Bot")
+ 
 
 @app.get('/')
 async def root(db:db_dependency):
@@ -153,6 +167,7 @@ def authenticate_admin(username:str, password:str, db: db_dependency):
 
 
 def create_access_token(admin_id:int, expires_delta: timedelta):
+    # encode = {'id': admin_id, 'flag':is_super_admin}
     encode = {'id': admin_id}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp': expires})
@@ -160,7 +175,7 @@ def create_access_token(admin_id:int, expires_delta: timedelta):
     
 
 @app.post('/login',response_model=basemodels.Token)
-async def login_admin(form_data:Annotated[OAuth2PasswordRequestForm,Depends()], db: Session = Depends(get_db)):
+async def admin_login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()], db: Session = Depends(get_db)):
 
     admin = authenticate_admin(form_data.username , form_data.password , db)
 
@@ -171,34 +186,37 @@ async def login_admin(form_data:Annotated[OAuth2PasswordRequestForm,Depends()], 
 
     return {'access_token': token, 'token_type': 'bearer'}
 
+def authenticate_superadmin(username:str, password:str, db: db_dependency):
+    super_admin = db.query(models.SuperAdmin).filter(models.SuperAdmin.username == username).first()
+    if not super_admin:
+        return False
+    if super_admin.password != hashlib.sha256(password.encode('utf-8')).hexdigest():
+        return False
+    return super_admin
+
+@app.post('/login/superadmin',response_model=basemodels.Token)
+async def super_admin_login(form_data:Annotated[OAuth2PasswordRequestForm,Depends()], db:db_dependency):
+    
+    super_admin = authenticate_superadmin(form_data.username , form_data.password , db)
+
+    if not super_admin:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='could not validate super_admin username or password is incorrect')
+    
+    token = create_access_token(super_admin.super_admin_id, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+
+    return {'access_token': token, 'token_type': 'bearer'}
+
 
 async def get_admin(db:db_dependency, admin_id:int):
 
     return db.query(models.Admin).filter(models.Admin.admin_id == admin_id).first()
 
 
-async def get_current_admin(token: Annotated[str, Depends(oauth2_scheme)], db:db_dependency):
-    print(2)
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
-        id: int = payload.get("id")
-        if id is None:
-            raise credentials_exception
-        token_data = basemodels.TokenData(id=id)
-        
-    except InvalidTokenError:
-        raise credentials_exception
-    
-    admin = await get_admin(db, token_data.id)
-    if admin is None:
-        raise credentials_exception
-    return admin
+async def get_super_admin(db:db_dependency, super_admin_id:int):
+
+    return db.query(models.SuperAdmin).filter(models.SuperAdmin.super_admin_id == super_admin_id).first()
+
+
 
 @app.get('/validateToken',response_model=bool)
 async def validate_token(token: Annotated[str, Depends(oauth2_scheme)], db:db_dependency):
@@ -224,7 +242,65 @@ async def validate_token(token: Annotated[str, Depends(oauth2_scheme)], db:db_de
         return False
     return True
 
-admin_dependency = Annotated[models.Admin, Depends(get_current_admin)]
+
+
+
+
+async def get_current_admin(token: Annotated[str, Depends(oauth2_scheme)], db:db_dependency):
+    # print(2)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        
+        id: int = payload.get("id")
+        # flag: bool = payload.get("flag")
+        if id is None:
+            raise credentials_exception
+        # token_data = basemodels.TokenData(id=id, is_super_admin=flag)
+        token_data = basemodels.TokenData(id=id)
+        
+    except InvalidTokenError:
+        raise credentials_exception
+    
+    # if token_data.is_super_admin:
+    #     admin = await get_super_admin(db, token_data.id)
+    # else:
+    #     admin = await get_admin(db, token_data.id)
+    admin = await get_admin(db, token_data.id)
+    if admin is None:
+        raise credentials_exception
+    return admin
+
+async def get_current_super_admin(token: Annotated[str, Depends(oauth2_scheme_super)], db:db_dependency):
+    # print(2)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        
+        id: int = payload.get("id")
+        if id is None:
+            raise credentials_exception
+        token_data = basemodels.TokenData(id=id)
+        
+    except InvalidTokenError:
+        raise credentials_exception
+    
+    super_admin = await get_super_admin(db, token_data.id)
+    if super_admin is None:
+        raise credentials_exception
+    return super_admin
+
+
+admin_dependency = Annotated[models.Admin , Depends(get_current_admin)]
+super_admin_dependency = Annotated[models.SuperAdmin, Depends(get_current_super_admin)]
 
 
 @app.get('/adminInfo') #test function
@@ -273,6 +349,7 @@ async def management_panel(admin: admin_dependency, db: db_dependency):
 async def container_management_panel(container_id: int, db: db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
     
     container = db.query(models.Container).filter(models.Container.container_id == container_id).first()
 
@@ -322,6 +399,7 @@ async def container_management_panel(container_id: int, db: db_dependency, admin
 async def bot_management_panel(bot_id: int,db:db_dependency, admin:admin_dependency):
 
     validate_botID(bot_id,db)
+    bot_access_verification(admin.admin_id, bot_id, db)
 
     bot = db.query(models.Bot).filter(models.Bot.bot_id == bot_id).first()
     
@@ -365,6 +443,7 @@ async def bot_management_panel(bot_id: int,db:db_dependency, admin:admin_depende
 async def add_message_to_container(message: basemodels.MessageBase, db: db_dependency, admin:admin_dependency):
 
     validate_containerID(message.container_id,db)
+    container_access_verification(admin.admin_id, message.container_id, db)
 
     try:
 
@@ -393,6 +472,7 @@ async def add_message_to_container(message: basemodels.MessageBase, db: db_depen
 async def get_container_messages(container_id: int, db:db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
 
     container_messages = db.query(models.Message).filter(and_(models.Message.container_id == container_id, models.Message.is_deleted == 0)).all()
 
@@ -428,6 +508,7 @@ async def get_container_messages(container_id: int, db:db_dependency, admin:admi
 async def get_bot_messages(bot_id: int, db:db_dependency, admin:admin_dependency):
 
     validate_botID(bot_id,db)
+    bot_access_verification(admin.admin_id, bot_id, db)
 
     bot_messages = db.query(models.BotHistory).filter(models.BotHistory.bot_id == bot_id).all()
 
@@ -454,10 +535,11 @@ async def get_bot_messages(bot_id: int, db:db_dependency, admin:admin_dependency
     return context 
 
 
-@app.delete('/delete-container/{container_id}') # delete all connections
+@app.delete('/delete-container/{container_id}')
 async def delete_container(container_id: int, db:db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
 
     try:
 
@@ -490,11 +572,11 @@ async def delete_container(container_id: int, db:db_dependency, admin:admin_depe
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="something went wrong")
     
 
-
-@app.delete('/delete-bot/{bot_id}') # delete all connections
+@app.delete('/delete-bot/{bot_id}')
 async def delete_bot(bot_id: int, db:db_dependency, admin:admin_dependency):
 
     validate_botID(bot_id,db)
+    bot_access_verification(admin.admin_id, bot_id, db)
 
     try:
 
@@ -526,11 +608,10 @@ async def delete_bot(bot_id: int, db:db_dependency, admin:admin_dependency):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="something went wrong")
 
 
-
 @app.get('/all-containers')
 async def get_all_containers(db:db_dependency, admin:admin_dependency):
     
-    all_containers: models.Container = db.query(models.Container).all()
+    all_containers = db.query(models.Container).all()
 
     message_containers = []
     
@@ -540,6 +621,13 @@ async def get_all_containers(db:db_dependency, admin:admin_dependency):
         message_containers.append(container) if container.type_id==1 else comment_containers.append(container)
 
     return {"message_containers":message_containers, "comment_containers":comment_containers}
+
+@app.get('/all-bots')
+async def get_all_bots(db:db_dependency,admin:admin_dependency):
+
+    all_bots = db.query(models.Bot).all()
+
+    return all_bots
 
 @app.get('/admin-username-authentication/edit/{mode}/{username}&{ent_id}')
 async def get_all_admins(mode: int, username: str, ent_id: int, db:db_dependency, admin:admin_dependency):
@@ -741,6 +829,7 @@ async def get_unconnected_entities(mode: int, ent_id: int, db:db_dependency, adm
 async def edit_bot(edit_params: basemodels.BotBase, admin_usernames: Annotated[list[str],Body()], containers: Annotated[list[int],Body()], bot_id: int, db: db_dependency, admin:admin_dependency):
 
     validate_botID(bot_id,db)
+    bot_access_verification(admin.admin_id, bot_id, db)
 
     username_taken = db.query(models.Bot).filter(models.Bot.username == edit_params.username).first()
 
@@ -786,6 +875,7 @@ async def edit_bot(edit_params: basemodels.BotBase, admin_usernames: Annotated[l
 async def edit_container(edit_params: basemodels.ContainerBase, admin_usernames: Annotated[list[str],Body()], bots: Annotated[list[int],Body()], container_id: int, db: db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
 
     container:models.Container = db.query(models.Container).filter(models.Container.container_id == container_id).first()
 
@@ -821,22 +911,27 @@ async def edit_container(edit_params: basemodels.ContainerBase, admin_usernames:
 
     return {"message":"container edited succesfully"}
 
-    
-
 
 @app.get('/container-log/{container_id}&{t1}&{t2}')
 async def get_container_log(container_id: int, t1: date, t2:date, db:db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
     
     # all_messages_in_period = db.query(models.BotHistory.message_id).filter(models.BotHistory.time_sent.between(t1,t2)).all()
     messages_in_period = db.query(models.BotHistory).join(models.Message,models.Message.message_id == models.BotHistory.message_id).filter(and_(models.BotHistory.time_sent.between(t1,t2),models.Message.container_id==container_id)).all()
 
     count_messages_in_period = len(messages_in_period)
 
-    added_in_period = db.query(func.count(models.Message.message_id)).filter(and_(models.Message.container_id == container_id,models.Message.create_date.between(t1,t2))).group_by(models.Message.container_id).scalar()
+    # added_in_period = db.query(func.count(models.Message.message_id)).filter(and_(models.Message.container_id == container_id,models.Message.create_date.between(t1,t2))).group_by(models.Message.container_id).scalar()
+    # count_added_in_period = added_in_period
+    added_in_period = db.query(models.Message).filter(and_(models.Message.container_id == container_id,models.Message.create_date.between(t1,t2))).all()
+    count_added_in_period = len(added_in_period)
     
-    deleted_in_period = db.query(func.count(models.Message.message_id)).filter(and_(models.Message.container_id == container_id,models.Message.is_deleted==1,models.Message.deleted_date.between(t1,t2))).group_by(models.Message.container_id).scalar()
+    # deleted_in_period = db.query(func.count(models.Message.message_id)).filter(and_(models.Message.container_id == container_id,models.Message.is_deleted==1,models.Message.deleted_date.between(t1,t2))).group_by(models.Message.container_id).scalar()
+    # count_deleted_in_period = deleted_in_period
+    deleted_in_period = db.query(models.Message).filter(and_(models.Message.container_id == container_id,models.Message.is_deleted==1,models.Message.deleted_date.between(t1,t2))).all()
+    count_deleted_in_period = len(deleted_in_period)
 
     tempt2 = t2
 
@@ -846,16 +941,30 @@ async def get_container_log(container_id: int, t1: date, t2:date, db:db_dependen
 
         tempt1 = tempt2 - timedelta(days=1)
 
-        count = 0
+        sent_message_count = 0
+        added_message_count = 0
+        deleted_message_count = 0
 
         for message in messages_in_period:
             if message.time_sent.date() >= tempt1 and message.time_sent.date() < tempt2:
-                count+=1
+                sent_message_count+=1
                 messages_in_period.remove(message)
+
+        for message in added_in_period:
+            if message.create_date >= tempt1 and message.create_date < tempt2:
+                added_message_count+=1
+                added_in_period.remove(message)
+
+        for message in deleted_in_period:
+            if message.deleted_date >= tempt1 and message.deleted_date < tempt2:
+                deleted_message_count+=1
+                deleted_in_period.remove(message)
             
         graph_data = {
             "date": tempt1,
-            "count": count
+            "sent_message_count": sent_message_count,
+            "added_message_count": added_message_count,
+            "deleted_message_count": deleted_message_count
         }
 
         graph.append(graph_data)
@@ -865,8 +974,8 @@ async def get_container_log(container_id: int, t1: date, t2:date, db:db_dependen
 
     context = {
         "messages_in_period": count_messages_in_period,
-        "added_in_period": added_in_period,
-        "deleted_in_period": deleted_in_period,
+        "added_in_period": count_added_in_period,
+        "deleted_in_period": count_deleted_in_period,
         "graph": graph
     }
 
@@ -877,6 +986,7 @@ async def get_container_log(container_id: int, t1: date, t2:date, db:db_dependen
 async def get_container_log_sent_messages(container_id: int, t1: date, t2:date, db:db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
 
     messages_in_period = db.query(models.BotHistory).join(models.Message,models.Message.message_id == models.BotHistory.message_id).filter(and_(models.BotHistory.time_sent.between(t1,t2),models.Message.container_id==container_id)).all()
 
@@ -902,6 +1012,7 @@ async def get_container_log_sent_messages(container_id: int, t1: date, t2:date, 
 async def get_container_log_added_messages(container_id: int, t1: date, t2:date, db:db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
 
     messages = db.query(models.Message).filter(and_(models.Message.container_id == container_id,models.Message.create_date.between(t1,t2))).all()
 
@@ -912,6 +1023,7 @@ async def get_container_log_added_messages(container_id: int, t1: date, t2:date,
 async def get_container_log_deleted_messages(container_id: int, t1: date, t2:date, db:db_dependency, admin:admin_dependency):
 
     validate_containerID(container_id,db)
+    container_access_verification(admin.admin_id, container_id, db)
 
     deleted_messages = db.query(models.Message).filter(and_(models.Message.container_id == container_id, models.Message.is_deleted==1,models.Message.deleted_date.between(t1,t2))).all()
 
@@ -922,6 +1034,7 @@ async def get_container_log_deleted_messages(container_id: int, t1: date, t2:dat
 async def get_bot_log(bot_id: int, t1: date, t2:date, db:db_dependency, admin:admin_dependency):
 
     validate_botID(bot_id,db)
+    bot_access_verification(admin.admin_id, bot_id, db)
     
     # all_messages_in_period = db.query(models.BotHistory.message_id).filter(models.BotHistory.time_sent.between(t1,t2)).all()
     messages_in_period = db.query(models.BotHistory).filter(and_(models.BotHistory.time_sent.between(t1,t2),models.BotHistory.bot_id==bot_id)).all()
@@ -971,6 +1084,7 @@ async def get_bot_log(bot_id: int, t1: date, t2:date, db:db_dependency, admin:ad
 async def get_bot_log_sent_messages(bot_id: int, t1: date, t2:date, db:db_dependency, admin:admin_dependency):
 
     validate_botID(bot_id,db)
+    bot_access_verification(admin.admin_id, bot_id, db)
 
     messages_in_period = db.query(models.BotHistory).filter(and_(models.BotHistory.time_sent.between(t1,t2),models.BotHistory.bot_id==bot_id)).all()
 
@@ -996,6 +1110,7 @@ async def get_bot_log_sent_messages(bot_id: int, t1: date, t2:date, db:db_depend
 async def get_bot_containers(bot_id: int,db: db_dependency, admin: admin_dependency):
 
     validate_botID(bot_id,db)
+    bot_access_verification(admin.admin_id, bot_id, db)
     
     bot_containers = db.query(models.BotContainer.container_id).filter(models.BotContainer.bot_id == bot_id).all()
 
@@ -1017,6 +1132,7 @@ async def send_message(bot_history: basemodels.BotHistoryBase, db:db_dependency,
 
     validate_botID(bot_history.bot_id,db)
     validate_messageID(bot_history.message_id,db)
+    bot_access_verification(admin.admin_id, bot_history.bot_id, db)
 
     bot_containers = await get_bot_containers(bot_history.bot_id,db,admin)
 
@@ -1052,6 +1168,8 @@ async def delete_message(message_id: int,db:db_dependency, admin:admin_dependenc
 
     message:models.Message = db.query(models.Message).filter(models.Message.message_id == message_id).first()
 
+    container_access_verification(admin.admin_id, message.container_id, db)
+
     if message.is_deleted:
         return {"message":"message is already deleted"}
 
@@ -1063,4 +1181,29 @@ async def delete_message(message_id: int,db:db_dependency, admin:admin_dependenc
 
     return {"message":"message deleted succesfully"}
 
+
+# @app.get('/get-container-obj/{}')
+
+@app.get('/superadmin-access')
+async def get_super_admin_accessibility(db:db_dependency, super_admin:super_admin_dependency):
+
+    admins = db.query(models.Admin).all()
+    bots = db.query(models.Bot).all()
+    containers = db.query(models.Container).all()
+
+    message_containers = []
+    comment_containers = []
+
+    for container in containers:
+        message_containers.append(container) if container.type_id==1 else comment_containers.append(container)
+
+    context = {
+        "admins": admins,
+        "bot": bots,
+        "message_containers": message_containers,
+        "comment_containers": comment_containers,
+        "haghdashdefo": super_admin
+    }
+
+    return context
 

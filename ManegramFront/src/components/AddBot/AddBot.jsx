@@ -1,13 +1,10 @@
 import InputTextAdd from '../Inputs/InputTextAdd';
 
 import { DropDownSearchForAdd } from '../DropDownSearchForAdd/DropDownSearchForAdd.jsx';
-import { useLocation } from 'react-router-dom';
 import Footer from '../Footer/Footer'
 import NavigationBar from '../NavigationBar/NavigationBar'
 import './AddBot.css'
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { selectedProperty, Token } from '../../RoutesManeg';
-import SearchableDropdown from '../SearchableDropDown/SeachableDropdown';
+import { createContext, useRef, useState } from 'react';
 import axios from 'axios';
 import InputText from '../Inputs/inputText.jsx';
 
@@ -15,13 +12,13 @@ export const selectedThing = createContext()
 
 function AddBot(){
     // get userId
-    const[refresh , setRefresh] = useState('')
+    const[refresh , setRefresh] = useState(true)
     const [Containers , setContainers] = useState({'message_containers':[] , 'comment_containers':[]})
     const [containerM2bAdded , setContainerM2bAdded] = useState({})
     const [containerC2bAdded , setContainerC2bAdded] = useState({})
     const [selectedMesConts , setSelectedMesConts]= useState([])
     const [selectedComConts , setSelectedComConts]= useState([])
-    const [BotObj , setBotObj] = useState({bot: {username:'' , title:'' , info:''} , admin_usernames: [] , containers: [] })
+    const [selectedAdmins , setSelectedAdmins]= useState([])
     const username = useRef('')
     const title = useRef('')
     const info = useRef('')
@@ -41,7 +38,7 @@ function AddBot(){
         selectedMesConts.map((cont)=>{
             Containers['message_containers'].map((cont2)=>{
                 if(cont2.title == cont){
-                    selectedConts.add(cont2.container_id)
+                    selectedConts.push(cont2.container_id)
                 }
             })
         })
@@ -49,13 +46,17 @@ function AddBot(){
         selectedComConts.map((cont)=>{
             Containers['comment_containers'].map((cont2)=>{
                 if(cont2.title == cont){
-                    selectedConts.add(cont2.container_id)
+                    selectedConts.push(cont2.container_id)
                 }
             })
         })
 
-        setBotObj({bot: {username: username.current.value , title:title.current.value , info:info.current.value} , admin_usernames: admin_usernames.current.value , containers: selectedConts })
-        console.log(BotObj , 'sth')
+        axios.post('http://127.0.0.1:8000/add-bot',{bot: {username: username.current.value , title:title.current.value , info:info.current.value} , admin_usernames: selectedAdmins , containers: selectedConts },{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
+             console.log(response.data , 'resresresjiooijioj')
+        })
+
+        console.log({bot: {username: username.current.value , title:title.current.value , info:info.current.value} , admin_usernames: selectedAdmins , containers: selectedConts })
+        
     }
 
     return (
@@ -73,34 +74,38 @@ function AddBot(){
                 <InputText title='Username' reff={username} />
                         
                            
-                <selectedThing.Provider value={{refresh , setRefresh}}>
+           
                     <DropDownSearchForAdd   
-                            FetchContainers={FetchContainers} 
-                            messageContainers={Containers['message_containers']} 
-                            container2bAdded={containerM2bAdded} 
+                            Fetch={FetchContainers} 
+                            messageContainersOrBots={Containers['message_containers']} 
+                            bAdded={containerM2bAdded} 
                             title={'Message Containers'}
-                            setContainer2bAdded={setContainerM2bAdded}  
-                            selectedMesConts={selectedMesConts}
-                            setSelectedMesConts={setSelectedMesConts}
-                          
+                            setbAdded={setContainerM2bAdded}  
+                            selectedEn={selectedMesConts}
+                            setSelectedEn={setSelectedMesConts}
+                            setRefresh={setRefresh}
+                            refresh={refresh}
 
                     />
+
+                    
 
                     <DropDownSearchForAdd   
-                            FetchContainers={FetchContainers} 
-                            messageContainers={Containers['comment_containers']} 
-                            container2bAdded={containerC2bAdded} 
+                            Fetch={FetchContainers} 
+                            messageContainersOrBots={Containers['comment_containers']} 
+                            bAdded={containerC2bAdded} 
                             title={'Comment Containers'}
-                            setContainer2bAdded={setContainerC2bAdded}  
-                            selectedMesConts={selectedComConts}
-                            setSelectedMesConts={setSelectedComConts}
-                          
+                            setbAdded={setContainerC2bAdded}  
+                            selectedEn={selectedComConts}
+                            setSelectedEn={setSelectedComConts}
+                            setRefresh={setRefresh}
+                            refresh={refresh}
                     />
 
-                </selectedThing.Provider>
+            
                                    
                                     
-                <InputTextAdd title='Admins' ref={admin_usernames} />
+                <InputTextAdd title='Admins' reff={admin_usernames} setSelectedAdmins={setSelectedAdmins} selectedAdmins={selectedAdmins} />
                     
 
                        

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './NavigationBar.css'
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import {Link} from 'react-router-dom'
@@ -26,6 +26,10 @@ const NavigationBar = () => {
     document.getElementById('navBar').style.position = position.current 
   }
 
+  useEffect(()=>{
+
+    
+  },[])
   return (<nav id='navBar' className="navbar navBody navbar-expand-lg fixed-top">
 <div className="container-fluid">
   <a className=" fs-3 navbar-brand text-white me-auto" href="#"> <img className='w-75' src={logo}></img></a>
@@ -43,7 +47,7 @@ const NavigationBar = () => {
           </div>
         </li>
         <li className="nav-item">
-          <a className=" fs-6 mx-3 nav-link text-white" href="./games.html">Add Message Container</a>
+        <Link to='/add-container' className=" fs-6 mx-3 nav-link text-white">Add Message Container</Link>
         </li>
         <li className="nav-item">
           <Link to='/addBot' className=" fs-6 mx-3 nav-link text-white" > Add Bot</Link>

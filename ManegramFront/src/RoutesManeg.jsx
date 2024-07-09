@@ -10,6 +10,10 @@ import PanelBodyBot from './components/PanelBodyBot/PanelBodyBot';
 import AddBot from './components/AddBot/AddBot';
 import ViewBotMessages from './components/ViewBorMessages/ViewBotMessages';
 import SendMessage from './components/SendMessage/SendMessage';
+import AddContainer from './components/AddContainer/AddContainer';
+import BigGraphCont from './components/BigGraph/BigGraphCont';
+import ViewFiltered from './components/ViewFiltered/ViewFiltered';
+import BigGraphBot from './components/BigGraph/BigGraphBot';
 
 
 
@@ -41,14 +45,17 @@ const [selected , setSelected] = useState({title:'Container or Bot Name'})
             <Route exact path="/managementPanel/panel" element={<PanelBody/>} />
             <Route exact path="/managementPanel/panelBot" element={<PanelBodyBot/>} />
             <Route exact path="/managementPanel/sendMessage" element={<SendMessage/>} />
+            <Route exact path="/managementPanel/BigGraphCont" element={<BigGraphCont/>} />
+            <Route exact path='/managementPanel/BigGraphBot' element={<BigGraphBot/>} />
+            <Route exact path="/managementPanel/view-filtered" element={<ViewFiltered/>} /> 
           </Route>   
             <Route exact path="/addBot" element={<AddBot/>} /> 
+            <Route exact path="/add-container" element={<AddContainer/>} /> 
+            
           
                          
 
-          {//property.messageCont
           
-          }
         </Routes>
         
       </Router>

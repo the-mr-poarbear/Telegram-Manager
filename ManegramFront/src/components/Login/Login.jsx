@@ -41,6 +41,7 @@ function Login(){
             axios.get('http://127.0.0.1:8000/admin-management-panel',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
                 console.log(response.data)
                 setProperties(response.data)
+                
                 console.log(properties , 'khi')
             })
             
