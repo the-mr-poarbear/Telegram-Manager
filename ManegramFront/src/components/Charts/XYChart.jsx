@@ -4,6 +4,10 @@ import {Bar , BarChart, XAxis , ResponsiveContainer , Legend , Tooltip} from 're
 
 
 function XYChart({data}){
+    if(data != undefined){
+        data = data.reverse()
+    }
+    
     return (
         
         <ResponsiveContainer width='100%' height='100%'>

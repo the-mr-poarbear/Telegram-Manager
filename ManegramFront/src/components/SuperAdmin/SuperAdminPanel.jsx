@@ -1,15 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import NavigationBar from '../NavigationBar/NavigationBar';
 import { Navigate, useNavigate } from "react-router-dom";
-import'./ManagementPanel.css'
 import SidePanelProfile from '../SidePanelProfile/SidePanelProfile';
-import { Profile, PropertyContext, selectedBotProp, selectedProperty } from '../../RoutesManeg';
+import { PropertyContext, selectedBotProp, selectedProperty } from '../../RoutesManeg';
 import { Outlet } from 'react-router-dom';
 import axios from 'axios';
 
 
-function ManagementPanel(){
-    const {prof , setProf} = useContext(Profile)
+function SuperAdminPanel(){
     const {properties , setProperties} = useContext(PropertyContext)
 
     let messageConts=properties.message_containers
@@ -22,34 +20,6 @@ function ManagementPanel(){
   
     const first = useRef(true)
 
-    function DeleteEntity(){
-        console.log(selected.container_id === undefined)
-        if(selected.container_id !== undefined){
-            axios.delete(`http://127.0.0.1:8000/delete-container/${selected.container_id}`,{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} }).then((response)=>{
-                console.log(response.data)
-                if (response.status == 200){
-                    setSelected({title:'Container or Bot Name'})
-                }
-            })
-        } else if(selected.bot_id !== undefined){
-            axios.delete(`http://127.0.0.1:8000/delete-bot/${selected.bot_id}`,{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} }).then((response)=>{
-                console.log(response.data)
-                if (response.status == 200){
-                    setSelected({title:'Container or Bot Name'})
-                }
-            })
-        }
-        
-    }
-
-    function EditBot(){
-        
-        if(selected.container_id !== undefined){
-            
-        } else if(selected.bot_id !== undefined){
-            manage('/editBot')
-        }
-    }
 
     useEffect(()=>{
         console.log(first.current)
@@ -60,47 +30,27 @@ function ManagementPanel(){
             first.current = true
             if(selected['bot_id'] == null){
                 console.log(selected , 'goh')
-                manage('/managementPanel/panel')
+                manage('/superadmin/managementPanel/contPanel')
 
             }else if(selected['bot_id']){
-                console.log(selected , 'goh')
-                manage('/managementPanel/panelBot')
+                console.log(selected , 'gohh')
+                manage('/superadmin/managementPanel/botPanel')
             }else{
                 console.log('nope')
             }
-            setProf({link:'/logout' , text:'Logged'})
+
             
         }
         
       },[selected])
 
       useEffect(()=>{
-        axios.get('http://127.0.0.1:8000/admin-management-panel',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
+        axios.get('http://127.0.0.1:8000/superadmin-access',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token_super')}`} } ).then((response)=>{
             console.log(response.status,'hii man')
             setProperties(response.data)
             console.log(properties , 'khiiiiiiiiiiiiiiiii')
-        }).catch((err)=>{console.log(err , 'rrrrr')})
+        })
       },[])
-
-
-      useEffect(()=>{
-        axios.get('http://127.0.0.1:8000/validateToken', {headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response) =>{
-              
-          if(response.data){
-              console.log(response.data,'hiiiiiiiiiiiiiiiiiiiiii')
-              
-              axios.get('http://127.0.0.1:8000/admin-management-panel',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
-                  console.log(response.data)
-                  setProperties(response.data)
-                  setProf({link:'/logout' , text:'Logged'})
-                  
-              })
-              
-          }})
-      },[])
-
-
-
     return <div className='d-flex flex-column align-items-center'>
         {console.log(selected , properties , messageConts , 'see it')}
         <NavigationBar/>
@@ -112,8 +62,7 @@ function ManagementPanel(){
                 <div className='col-lg-9 col-12 p-0 mb-3'><div className='shell d-flex justify-content-between align-items-center'  >
                     <h2 className='p-2 ps-5 fs-1 btnBlue'>{selected.title}</h2> 
                     <div className='me-4 d-flex w-25'>
-                        <button className='mx-3 blueBtn' onClick={EditBot}>Edit</button> 
-                        <button className=' redBtn' onClick={DeleteEntity}>Delete</button>
+                        
                     </div>
                 </div>
             </div>
@@ -180,4 +129,4 @@ function ManagementPanel(){
     </div>
 }
 
-export default ManagementPanel;
+export default SuperAdminPanel;

@@ -1,0 +1,27 @@
+.bode {
+    background-image: url("back2.jpg");
+    background-size: cover;
+}
+
+#card {
+    background-color: rgba(8, 29, 60, 0.8);
+    filter: blur();
+}
+
+.pi {
+    color: #0094FF;
+}
+
+@media screen and (max-width: 800px) {
+    #card {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+@media screen and (min-width: 801px) {
+    #card {
+        width: 50%;
+        height: 80%;
+    }
+}

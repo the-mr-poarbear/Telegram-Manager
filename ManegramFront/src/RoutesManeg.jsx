@@ -14,6 +14,13 @@ import AddContainer from './components/AddContainer/AddContainer';
 import BigGraphCont from './components/BigGraph/BigGraphCont';
 import ViewFiltered from './components/ViewFiltered/ViewFiltered';
 import BigGraphBot from './components/BigGraph/BigGraphBot';
+import EditBot from './components/EditBot/EditBot';
+import SuperAdminLogin from './components/SuperAdmin/SuperAdminLogin';
+import SuperAdminPanel from './components/SuperAdmin/SuperAdminPanel';
+import ContactUs from './components/ContactUs/ContactUs';
+import SuperAdminContPanel from './components/SuperAdmin/SuperAdminContPanel';
+import SuperAdminBotPanel from './components/SuperAdmin/SuperAdminBotPanel';
+import Logout from './components/ManagementPanel/logout';
 
 
 
@@ -21,9 +28,10 @@ export const Token = React.createContext();
 export const PropertyContext = React.createContext();
 export const selectedProperty = React.createContext();
 export const selectedBotProp = React.createContext();
-
+export const Profile = React.createContext() 
 
 function RoutesManeg() {
+const [prof , setProf] = useState({link: '/login' , text: 'Login/Signin'})
 const [token , setToken] = useState({})
 let [properties , setProperties] = useState({gi:'ann'})
 const [selected , setSelected] = useState({title:'Container or Bot Name'})
@@ -34,6 +42,7 @@ const [selected , setSelected] = useState({title:'Container or Bot Name'})
     <Token.Provider value={{token , setToken}}>
     <selectedProperty.Provider value={{selected , setSelected}}>
     <PropertyContext.Provider value={{properties: properties , setProperties: setProperties}}>
+    <Profile.Provider value={{prof , setProf}}>
       <Router>
         <Routes>
           <Route exact path="/login" element={<Login/>} />
@@ -51,17 +60,30 @@ const [selected , setSelected] = useState({title:'Container or Bot Name'})
           </Route>   
             <Route exact path="/addBot" element={<AddBot/>} /> 
             <Route exact path="/add-container" element={<AddContainer/>} /> 
+            <Route exact path="/editBot" element={<EditBot/>} /> 
             
-          
-                         
+            
+          <Route exact path="/super-admin-login-saka" element={<SuperAdminLogin/>} />  
 
+          <Route exact path="/superadmin/managementPanel" element={<SuperAdminPanel/>}> 
+              <Route exact path="/superadmin/managementPanel/contPanel" element={<SuperAdminContPanel/>} />
+              <Route exact path="/superadmin/managementPanel/botPanel" element={<SuperAdminBotPanel/>} />
+          </Route>
+
+          
+
+          <Route exact path="/ContactUs" element={<ContactUs/>} />   
+          <Route exact path="/logout" element={<Logout/>} />   
+          
           
         </Routes>
         
       </Router>
+      </Profile.Provider>
     </PropertyContext.Provider>
     </selectedProperty.Provider>
     </Token.Provider>
+    
   );
 }
 

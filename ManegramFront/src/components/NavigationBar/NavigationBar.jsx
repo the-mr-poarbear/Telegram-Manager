@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import './NavigationBar.css'
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import {Link} from 'react-router-dom'
@@ -6,11 +6,15 @@ import logo from '../../assets/media/logo.png'
 import person from '../../assets/media/person.png'
 import lockOp from '../../assets/media/lock open.png'
 import lockCl from '../../assets/media/lock close.png'
+import { Profile } from '../../RoutesManeg';
+
+
+
 
 const NavigationBar = () => {
   const position = useRef('fixed')
   const [pic , setPic] = useState(lockCl)
-
+  const {prof} = useContext(Profile)
   function LockPosition(){
     if (position.current == 'fixed'){
       setPic(lockOp)
@@ -40,7 +44,7 @@ const NavigationBar = () => {
     <div className="w-100 d-flex justify-content-md-end justify-content-center">
       <ul className="navbar-nav d-flex mx-5 justify-content-between mb-2 mb-lg-0">
         <li className="nav-item">
-          <a className="fs-6 mx-3 nav-link text-white" href="./index.html">Contact us</a>
+          <Link to='/ContactUs' className="fs-6 mx-3 nav-link text-white" >Contact us</Link>
           <div className="d-flex flex-row">
             <div className="line" ></div>
             <div className="line "></div>
@@ -56,7 +60,7 @@ const NavigationBar = () => {
           <Link to='/managementPanel' className=" fs-6 mx-3  nav-link navItem text-white"  >Admin Page</Link>
         </li>
         <li className='nav-item'>
-          <Link to='/login'><button className='loginbtn'>Login / signup</button></Link>
+          <Link to={prof.link}><button className='loginbtn'>{prof.text}</button></Link>
         </li>
         <li className='nav-item lockBtn fs-6 '>
           <img onClick={LockPosition} className='w-75 mx-3' src={pic}></img>

@@ -15,7 +15,8 @@ function SidePanelProfile({keys , keys2 , keys3}){
 
     return <div>
         <div onClick={handleShow} className='d-flex collappsedProf text-black d-block d-lg-none'>
-        <img src={lockCl} className='collappsedPP'></img>
+        
+        <i class="fs-1 sideBarOpener bi bi-layout-sidebar-inset"></i>
         <h2 className='d-flex align-self-center'></h2>
         </div>
     

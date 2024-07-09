@@ -3,16 +3,17 @@ import InputTextAdd from '../Inputs/InputTextAdd';
 import { DropDownSearchForAdd } from '../DropDownSearchForAdd/DropDownSearchForAdd.jsx';
 import Footer from '../Footer/Footer'
 import NavigationBar from '../NavigationBar/NavigationBar'
-import './AddBot.css'
-import { createContext, useRef, useState } from 'react';
+import { createContext, useContext, useRef, useState } from 'react';
 import axios from 'axios';
 import InputText from '../Inputs/inputText.jsx';
+import { selectedProperty } from '../../RoutesManeg.jsx';
 
 export const selectedThing = createContext()
 
-function AddBot(){
+function EditBot(){
     // get userId
-    const[refresh , setRefresh] = useState(true)
+    const [refresh , setRefresh] = useState(true)
+    const {selected} = useContext(selectedProperty)
     const [Containers , setContainers] = useState({'message_containers':[] , 'comment_containers':[]})
     const [containerM2bAdded , setContainerM2bAdded] = useState({})
     const [containerC2bAdded , setContainerC2bAdded] = useState({})
@@ -26,7 +27,7 @@ function AddBot(){
     const admin_usernames = useRef([])
     const containers = useRef([])
     function FetchContainers(){
-        axios.get('http://127.0.0.1:8000/all-containers',{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
+        axios.get(`http://127.0.0.1:8000/get-unconnected-entities/1/${selected.bot_id}`,{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
             setContainers(response.data)
             console.log(response.data , 'resresres')
         })
@@ -51,7 +52,7 @@ function AddBot(){
             })
         })
 
-        axios.post('http://127.0.0.1:8000/add-bot',{bot: {username: username.current.value , title:title.current.value , info:info.current.value} , admin_usernames: selectedAdmins , containers: selectedConts },{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
+        axios.put(`http://127.0.0.1:8000/edit-bot/${selected.bot_id}`,{edit_params: {username: username.current.value , title:title.current.value , info:info.current.value} , admin_usernames: selectedAdmins , containers: selectedConts },{headers: {'Authorization': `bearer ${localStorage.getItem('accsess_token')}`} } ).then((response)=>{
              console.log(response.data , 'resresresjiooijioj')
         })
 
@@ -69,9 +70,9 @@ function AddBot(){
             <div className="container d-flex flex-column form-control addBot py-5" style={{border:'none'}}>
                 
                     
-                <InputText title='Name' reff={title} />
+                <InputText title='Name' reff={title} editMode={true} editVal={selected.title} />
             
-                <InputText title='Username' reff={username} />
+                <InputText title='Username' reff={username} editMode={true} editVal={selected.username}/>
                         
                            
            
@@ -105,7 +106,7 @@ function AddBot(){
             
                                    
                                     
-                <InputTextAdd title='Admins' reff={admin_usernames} setSelectedAdmins={setSelectedAdmins} selectedAdmins={selectedAdmins} />
+                <InputTextAdd title='Admins' edit={true} ent_id={selected.bot_id} reff={admin_usernames} setSelectedAdmins={setSelectedAdmins} selectedAdmins={selectedAdmins} />
                     
 
                        
@@ -116,7 +117,7 @@ function AddBot(){
                                     <label for="title" className="text-white mt-md-3 p-0 col-3 d-none d-md-block ">Info</label>
 
                                     <div  className="p-3 py-4 pe-5  col-9 blackDiv">
-                                        <textarea ref={info} defaultValue='Info' className="form-control pb-5 w-100 addBotTextAra inputColor text-white" type="text text-white"
+                                        <textarea ref={info} defaultValue={selected.info} className="form-control pb-5 w-100 addBotTextAra inputColor text-white" type="text text-white"
                                             > </textarea>
                                     </div>
 
@@ -124,8 +125,8 @@ function AddBot(){
                                 <div className="col-2">&nbsp;</div>
                             </div>
                       
-                            <div className='d-flex justify-content-center'>
-                            <button onClick={()=>ConvertToID(selectedMesConts , selectedComConts)}className='mt-4 w-25'>Submit</button>  
+                            <div className='w-100 d-flex justify-content-center'>
+                                <button onClick={()=>ConvertToID(selectedMesConts , selectedComConts)}className='mt-4 w-25'>Submit</button>  
                             </div>
                             
             
@@ -137,4 +138,4 @@ function AddBot(){
     
     }
 
-export default AddBot;
+export default EditBot;

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, status, HTTPException,Body
-from typing import Annotated
+from typing import Annotated, Union
 from sqlalchemy.orm import Session
 from database import SessionLocal,engine
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,8 +59,7 @@ def validate_adminID(admin_id: int, db:db_dependency):
     admin_exist = db.query(models.Admin).filter(models.Admin.admin_id == admin_id).first()
 
     if not admin_exist:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Admin does not exist")
-    
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Admin does not exist")    
 
 def validate_botID(bot_id: int, db:db_dependency):
 
@@ -217,35 +216,6 @@ async def get_super_admin(db:db_dependency, super_admin_id:int):
     return db.query(models.SuperAdmin).filter(models.SuperAdmin.super_admin_id == super_admin_id).first()
 
 
-
-@app.get('/validateToken',response_model=bool)
-async def validate_token(token: Annotated[str, Depends(oauth2_scheme)], db:db_dependency):
-    print(2)
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
-        id: int = payload.get("id")
-        if id is None:
-           return False
-        token_data = basemodels.TokenData(id=id)
-        
-    except InvalidTokenError:
-        raise credentials_exception
-    
-    admin = await get_admin(db, token_data.id)
-    if admin is None:
-        return False
-    return True
-
-
-
-
-
 async def get_current_admin(token: Annotated[str, Depends(oauth2_scheme)], db:db_dependency):
     # print(2)
     credentials_exception = HTTPException(
@@ -394,12 +364,102 @@ async def container_management_panel(container_id: int, db: db_dependency, admin
 
     return context
 
+@app.get('/superadmin-management-container/{container_id}')
+async def container_management_panel(container_id: int, db: db_dependency, super_admin:super_admin_dependency):
+
+    validate_containerID(container_id,db)
+    # container_access_verification(admin.admin_id, container_id, db)
+    
+    container = db.query(models.Container).filter(models.Container.container_id == container_id).first()
+
+    # count of connectd bots
+    connected_bots_count = db.query(func.count(models.BotContainer.bot_id)).filter(models.BotContainer.container_id == container_id).group_by(models.BotContainer.container_id).scalar()
+
+    # count of connected admins
+    connected_admins_count = db.query(func.count(models.ContainerAdmin.admin_id)).filter(models.ContainerAdmin.container_id == container_id).group_by(models.ContainerAdmin.container_id).scalar()
+
+    # count of messages
+    message_count = db.query(func.count(models.Message.message_id)).filter(models.Message.container_id == container_id).group_by(models.Message.container_id).scalar()
+
+    # list of count of messages sent from container in last 7 days
+    week_days = {
+        0: 'Mon',
+        1: 'Tue',
+        2: 'Wed',
+        3: 'Thu',
+        4: 'Fri',
+        5: 'Sat',
+        6: 'Sun'
+    }
+    last_7days_log = []
+    for i in range(7):
+        t1 = datetime.today() - timedelta(days=i+1)
+        t2 = datetime.today() - timedelta(days=i)
+        day_log = db.query(func.count(models.BotHistory.bot_history_id)).join(models.Message, models.BotHistory.message_id == models.Message.message_id).filter(and_(models.Message.container_id == container_id, models.BotHistory.time_sent.between(t1,t2))).group_by(models.Message.container_id).scalar()
+        day_num = (t1.weekday()+1)%7
+        week_day = week_days[day_num]
+        if day_log is not None:
+            last_7days_log.append({"week_day": week_day, "day_log": day_log})
+        else:
+            last_7days_log.append({"week_day": week_day, "day_log": 0})
+
+    context = {
+        "container": container,
+        "connected_bots_count": connected_bots_count,
+        "connected_admins_count": connected_admins_count,
+        "message_count": message_count,
+        "last_7days_log": last_7days_log
+    }
+
+    return context
 
 @app.get('/admin-management-bot/{bot_id}')
 async def bot_management_panel(bot_id: int,db:db_dependency, admin:admin_dependency):
 
     validate_botID(bot_id,db)
     bot_access_verification(admin.admin_id, bot_id, db)
+
+    bot = db.query(models.Bot).filter(models.Bot.bot_id == bot_id).first()
+    
+    # count of connectd containers
+    connected_containers_count = db.query(func.count(models.BotContainer.container_id)).filter(models.BotContainer.bot_id == bot_id).group_by(models.BotContainer.bot_id).scalar()
+    # count of connected admins
+    connected_admins_count = db.query(func.count(models.BotAdmin.admin_id)).filter(models.BotAdmin.bot_id == bot_id).group_by(models.BotAdmin.bot_id).scalar()
+    # count of messages sent
+    message_count = db.query(func.count(models.BotHistory.bot_history_id)).filter(models.BotHistory.bot_id == bot_id).group_by(models.BotHistory.bot_id).scalar()
+    # list of count of messages sent from bot in last 7 days
+    week_days = {
+        0: 'Mon',
+        1: 'Tue',
+        2: 'Wed',
+        3: 'Thu',
+        4: 'Fri',
+        5: 'Sat',
+        6: 'Sun'
+    }
+    last_7days_log = []
+    for i in range(7):
+        t1 = datetime.today() - timedelta(days=i+1)
+        t2 = datetime.today() - timedelta(days=i)
+        day_log = db.query(func.count(models.BotHistory.bot_history_id)).filter(and_(models.BotHistory.bot_id == bot_id,models.BotHistory.time_sent.between(t1,t2))).group_by(models.BotHistory.bot_id).scalar()
+        day_num = (t1.weekday()+1)%7
+        week_day = week_days[day_num]
+        last_7days_log.append({"week_day": week_day, "day_log": day_log}) if day_log is not None else last_7days_log.append({"week_day": week_day, "day_log": 0})
+
+    context = {
+        "bot": bot,
+        "connected_containers_count": connected_containers_count,
+        "connected_admins_count": connected_admins_count,
+        "message_count": message_count,
+        "last_7days_log": last_7days_log
+    }
+
+    return context
+
+@app.get('/superadmin-management-bot/{bot_id}')
+async def bot_management_panel(bot_id: int,db:db_dependency, super_admin:super_admin_dependency):
+
+    validate_botID(bot_id,db)
 
     bot = db.query(models.Bot).filter(models.Bot.bot_id == bot_id).first()
     
@@ -490,7 +550,7 @@ async def get_container_messages(container_id: int, db:db_dependency, admin:admi
 
         last_used = db.query(func.max(models.BotHistory.time_sent)).filter(models.BotHistory.message_id == message_id).group_by(models.BotHistory.message_id).scalar()
 
-        print(last_used)
+        # print(last_used)
 
         message_context = {
             "message_id": message_id,
@@ -948,17 +1008,17 @@ async def get_container_log(container_id: int, t1: date, t2:date, db:db_dependen
         for message in messages_in_period:
             if message.time_sent.date() >= tempt1 and message.time_sent.date() < tempt2:
                 sent_message_count+=1
-                messages_in_period.remove(message)
+                # messages_in_period.remove(message)
 
-        for message in added_in_period:
-            if message.create_date >= tempt1 and message.create_date < tempt2:
+        for add_message in added_in_period:
+            if add_message.create_date >= tempt1 and add_message.create_date < tempt2:
                 added_message_count+=1
-                added_in_period.remove(message)
+                # added_in_period.remove(add_message)
 
-        for message in deleted_in_period:
-            if message.deleted_date >= tempt1 and message.deleted_date < tempt2:
+        for del_message in deleted_in_period:
+            if del_message.deleted_date >= tempt1 and del_message.deleted_date < tempt2:
                 deleted_message_count+=1
-                deleted_in_period.remove(message)
+                # deleted_in_period.remove(del_message)
             
         graph_data = {
             "date": tempt1,
@@ -1201,8 +1261,7 @@ async def get_super_admin_accessibility(db:db_dependency, super_admin:super_admi
         "admins": admins,
         "bot": bots,
         "message_containers": message_containers,
-        "comment_containers": comment_containers,
-        "haghdashdefo": super_admin
+        "comment_containers": comment_containers
     }
 
     return context

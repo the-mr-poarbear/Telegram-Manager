@@ -1,17 +1,22 @@
-.footerHome{
-    background-image: url('../../assets/media/sky1.jpg');
+.footerHome {
+    background-color: #030619;
     position: relative;
     z-index: 1;
     color: white;
-   
+
 }
 
-.footerHome a{
-    color: white;  
+.footerHome a {
+    color: white;
     text-decoration: none;
 }
 
-.footerHome ul{
+.bl {
+    color: #0094FF;
+
+}
+
+.footerHome ul {
     list-style-type: none;
     padding: 0;
 }
@@ -20,11 +25,11 @@
     padding-top: 30px;
 }
 
-.CallBar{
-    background-color:#F1F1F4 ;
+.CallBar {
+    background-color: #030619;
     color: black;
 }
 
-.iconFooter{
+.iconFooter {
     font-size: 80px;
 }

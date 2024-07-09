@@ -1,17 +1,17 @@
-import './Footer.css'
+import './Footer.css';
 
 function Footer(){
     return <div className='w-100'>
 
-    <div className='d-flex row CallBar w-100 px-5 py-3 justify-content-around align-items-center'>
+    <div className='d-flex  row CallBar w-100 px-5 py-3 justify-content-around align-items-center'>
         <div className='d-flex align-items-center col-md-6 col-12'>
-          <i className='bi-envelope-fill iconFooter me-4'></i>
-          <h3>Email Address : bimarestan@gmail.com</h3>
+          <i className=' bl bi-envelope-fill iconFooter me-4'></i>
+          <h3 className=' bl '>Email Address : bimarestan@gmail.com</h3>
         </div>
 
-        <div className='d-flex align-items-center col-md-6 col-12'>
-          <i className='bi bi-telephone-fill iconFooter me-4'></i>
-          <h3>Phone Number : 33029302</h3>
+        <div className='d-flex  align-items-center col-md-6 col-12'>
+          <i className='bi bl bi-telephone-fill iconFooter me-4 '></i>
+          <h3 className=' bl '>Phone Number : 33029302</h3>
         </div>
     </div>
 
